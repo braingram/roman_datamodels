@@ -6,9 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-# Generated files
-src/roman_datamodels/datamodels/_generated/
-
 # Distribution / packaging
 .Python
 build/
