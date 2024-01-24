@@ -141,6 +141,9 @@ class DNode(MutableMapping):
         self._name = name
         self._x_schema_attributes = None
 
+    def __dir__(self):
+        return dir(self.__class__) + list(self._schema_attributes().explicit_properties) + list(self._data.keys())
+
     @property
     def ctx(self):
         if self._ctx is None:

@@ -25,16 +25,23 @@ class _RomanConverter(Converter):
                 return getattr(importlib.import_module(module_name), class_name)
 
     def select_tag(self, obj, tags, ctx):
+        if hasattr(obj, "_tag"):
+            # if the object is tagged, use it's tag
+            # TODO this tag might not be one of the tags for this extension
+            # asdf will incorrectly list this extension as used even if an
+            # older version contains the tag.
+            return obj.tag
         class_ = obj.__class__
         type_string = ".".join((class_.__module__, class_.__name__))
         tag_pattern = self.type_string_to_tag_pattern[type_string]
         for tag in tags:
             if uri_match(tag_pattern, tag):
                 return tag
-        return obj.tag
+        raise Exception("someone popped a tag")
 
     def from_yaml_tree(self, node, tag, ctx):
         instance = self.lookup_type(tag)(node)
+        # use the tag read from the file
         instance._tag = tag
         return instance
 

@@ -20,7 +20,7 @@ dependencies = [
     'astropy >=5.3.0',
     # 'rad >=0.18.0',
     #  'rad @ git+https://github.com/spacetelescope/rad.git',
-    'rad @ git+https://github.com/braingram/rad.git@versioned',
+    #'rad @ git+https://github.com/braingram/rad.git@versioned',
     'asdf-standard >=1.0.3',
 ]
 dynamic = ['version']

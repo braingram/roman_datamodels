@@ -21,6 +21,7 @@ from asdf.exceptions import ValidationError
 from astropy.time import Time
 
 from roman_datamodels import stnode, validate
+from roman_datamodels.stnode._tagged import _lookup_latest_tag
 
 __all__ = ["DataModel", "MODEL_REGISTRY"]
 
@@ -149,6 +150,18 @@ class DataModel(abc.ABC):
             self._instance = self._asdf.tree["roman"]
         else:
             raise OSError("Argument does not appear to be an ASDF file or TaggedObjectNode.")
+
+    def __dir__(self):
+        return dir(self.__class__) + dir(self._instance)
+
+    def retag(self, new_tag=None):
+        # if None, use latest
+        if new_tag is None:
+            new_tag = _lookup_latest_tag(self._instance._tag_pattern)
+        self._instance._tag = new_tag
+        for attr in ("_x_schema", "_x_schema_attributes", "_schema_uri"):
+            if hasattr(self._instance, attr):
+                setattr(self._instance, attr, None)
 
     def check_type(self, asdf_file):
         """
