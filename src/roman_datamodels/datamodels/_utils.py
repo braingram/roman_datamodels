@@ -30,7 +30,7 @@ else:
 __all__ = ["rdm_open"]
 
 
-def _open_path_like(init, memmap=False, **kwargs):
+def _open_path_like(init, memmap=False, lazy_tree=True, **kwargs):
     """
     Attempt to open init as if it was a path-like object.
 
@@ -48,6 +48,7 @@ def _open_path_like(init, memmap=False, **kwargs):
     `asdf.AsdfFile`
     """
     kwargs["copy_arrays"] = not memmap
+    kwargs["lazy_tree"] = lazy_tree
 
     try:
         asdf_file = asdf.open(init, **kwargs)
