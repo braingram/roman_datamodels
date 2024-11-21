@@ -46,9 +46,22 @@ def _open_path_like(init, lazy_tree=True, **kwargs):
     init = Path(init)
 
     try:
-        asdf_file = asdf.open(init, **kwargs)
+        with asdf.config_context() as cfg:
+            cfg.validate_on_read = False
+            asdf_file = asdf.open(init, **kwargs)
     except ValueError as err:
         raise TypeError("Open requires a filepath, file-like object, or Roman datamodel") from err
+
+    # migrate the file
+    if "source_detection" in asdf_file.tree.get("roman", {}).get("meta", {}).get("cal_step", {}):
+        cal_step = asdf_file["roman"]["meta"]["cal_step"]
+        cal_step["source_catalog"] = cal_step["source_detection"]
+        del cal_step["source_detection"]
+    if "source_detection" in asdf_file.tree.get("roman", {}).get("meta", {}):
+        meta = asdf_file["roman"]["meta"]
+        meta["source_catalog"] = meta["source_detection"]
+        del meta["source_detection"]
+    asdf_file.validate()
 
     if (
         "roman" in asdf_file
