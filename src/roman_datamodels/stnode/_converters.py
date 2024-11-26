@@ -98,20 +98,20 @@ class TaggedScalarNodeConverter(_RomanConverter):
         return obj.tag
 
     def to_yaml_tree(self, obj, tag, ctx):
-        from ._stnode import FileDate, FpsFileDate, TvacFileDate
+        from ._stnode import FpsFileDate, TvacFileDate
 
         node = obj.__class__.__bases__[0](obj)
 
-        if tag in (FileDate._tag, FpsFileDate._tag, TvacFileDate._tag):
+        if tag in (FpsFileDate._tag, TvacFileDate._tag):
             converter = ctx.extension_manager.get_converter_for_type(type(node))
             node = converter.to_yaml_tree(node, tag, ctx)
 
         return node
 
     def from_yaml_tree(self, node, tag, ctx):
-        from ._stnode import FileDate, FpsFileDate, TvacFileDate
+        from ._stnode import FpsFileDate, TvacFileDate
 
-        if tag in (FileDate._tag, FpsFileDate._tag, TvacFileDate._tag):
+        if tag in (FpsFileDate._tag, TvacFileDate._tag):
             converter = ctx.extension_manager.get_converter_for_type(Time)
             node = converter.from_yaml_tree(node, tag, ctx)
 
