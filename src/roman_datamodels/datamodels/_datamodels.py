@@ -167,6 +167,7 @@ class RampModel(_RomanDataModel):
         # Create base ramp node with dummy values (for validation)
         from roman_datamodels.maker_utils import mk_ramp
 
+        # TODO this allocates and fills empty arrays that later get overwritten
         ramp = mk_ramp(shape=model.shape)
 
         # check if the input model has a resultantdq from SDF
@@ -192,6 +193,10 @@ class RampModel(_RomanDataModel):
                     ramp[key] = other[key]
 
         node_update(ramp, model)
+
+        if isinstance(model, FpsModel | TvacModel):
+            ramp.data = ramp.data.value
+            ramp.amp33 = ramp.amp33.value
 
         # Create model from node
         ramp_model = RampModel(ramp)

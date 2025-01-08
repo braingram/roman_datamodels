@@ -1047,12 +1047,10 @@ def test_datamodel_save_filename(tmp_path):
 @pytest.mark.parametrize(
     "model_class, expect_success",
     [
-        # FPS and TVAC datamodels need to be commented out
-        # until translation methods are written for the pipeline
-        # (datamodels.FpsModel, True),
+        (datamodels.FpsModel, True),
         (datamodels.RampModel, True),
         (datamodels.ScienceRawModel, True),
-        # (datamodels.TvacModel, True),
+        (datamodels.TvacModel, True),
         (datamodels.MosaicModel, False),
     ],
 )
