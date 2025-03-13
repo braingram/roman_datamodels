@@ -10,7 +10,7 @@ from astropy.modeling import Model
 from astropy.table import QTable, Table
 from numpy.testing import assert_array_equal
 
-from roman_datamodels import datamodels, stnode, validate
+from roman_datamodels import datamodels, stnode
 from roman_datamodels import maker_utils as utils
 from roman_datamodels.testing import assert_node_equal
 
@@ -78,8 +78,7 @@ def test_model_schemas(node, model):
 
 @pytest.mark.parametrize("node, model", datamodels.MODEL_REGISTRY.items())
 @pytest.mark.parametrize("method", ["info", "search", "schema_info"])
-@pytest.mark.parametrize("nuke_env_var", ["true", "false"], indirect=True)
-def test_empty_model_asdf_operations(node, model, method, nuke_env_var):
+def test_empty_model_asdf_operations(node, model, method):
     """
     Test the decorator for asdf operations on models when the model is left truly empty.
     """
@@ -89,25 +88,11 @@ def test_empty_model_asdf_operations(node, model, method, nuke_env_var):
     # Check that the model does not have the asdf attribute set.
     assert mdl._asdf is None
 
-    # Depending on the state for nuke_validation we either expect an error or a
-    # warning to be raised.
-    #    - error: when nuke_env_var == true
-    #    - warning: when nuke_env_var == false
-    msg = f"DataModel needs to have all its data flushed out before calling {method}"
-    context = pytest.raises(ValueError, match=msg) if nuke_env_var[1] else pytest.warns(validate.ValidationWarning)
-
-    # Execute the method we wish to test, and catch the expected error/warning.
-    with context:
+    # Execute the method we wish to test, and catch the expected error.
+    with pytest.raises(ValueError, match=f"DataModel needs to have all its data flushed out before calling {method}"):
         getattr(mdl, method)()
 
-    if nuke_env_var[1]:
-        # If an error is raised (nuke_env_var == true), then the asdf attribute should
-        #    fail to be set.
-        assert mdl._asdf is None
-    else:
-        # In a warning is raised (nuke_env_var == false), then the asdf attribute should
-        #    be set to something.
-        assert mdl._asdf is not None
+    assert mdl._asdf is None
 
 
 @pytest.mark.parametrize("node, model", datamodels.MODEL_REGISTRY.items())

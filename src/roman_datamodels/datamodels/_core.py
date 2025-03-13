@@ -22,7 +22,7 @@ from asdf.exceptions import ValidationError
 from asdf.tags.core.ndarray import NDArrayType
 from astropy.time import Time
 
-from roman_datamodels import stnode, validate
+from roman_datamodels import stnode
 
 __all__ = ["MODEL_REGISTRY", "DataModel"]
 
@@ -39,11 +39,10 @@ def _set_default_asdf(func):
     def wrapper(self, *args, **kwargs):
         if self._asdf is None:
             try:
-                with validate.nuke_validation():
-                    af = asdf.AsdfFile()
-                    af["roman"] = self._instance
-                    af.validate()
-                    self._asdf = af
+                af = asdf.AsdfFile()
+                af["roman"] = self._instance
+                af.validate()
+                self._asdf = af
             except ValidationError as err:
                 raise ValueError(f"DataModel needs to have all its data flushed out before calling {func.__name__}") from err
 
@@ -129,13 +128,12 @@ class DataModel(abc.ABC):
                     f"TaggedObjectNode: {init.__class__.__name__} is not of the type expected. Expected {expected}"
                 )
 
-            with validate.nuke_validation():
-                self._instance = init
-                af = asdf.AsdfFile()
-                af["roman"] = self._instance
-                af.validate()
-                self._asdf = af
-                return
+            self._instance = init
+            af = asdf.AsdfFile()
+            af["roman"] = self._instance
+            af.validate()
+            self._asdf = af
+            return
 
         if init is None:
             self._instance = self._node_type()
@@ -223,15 +221,14 @@ class DataModel(abc.ABC):
     def open_asdf(self, init=None, **kwargs):
         from ._utils import _open_asdf
 
-        with validate.nuke_validation():
-            if isinstance(init, str):
-                return _open_asdf(init, **kwargs)
+        if isinstance(init, str):
+            return _open_asdf(init, **kwargs)
 
-            return asdf.AsdfFile(init, **kwargs)
+        return asdf.AsdfFile(init, **kwargs)
 
     def to_asdf(self, init, *args, **kwargs):
         all_array_compression = kwargs.pop("all_array_compression", "lz4")
-        with validate.nuke_validation(), _temporary_update_filename(self, Path(init).name):
+        with _temporary_update_filename(self, Path(init).name):
             asdf_file = self.open_asdf(**kwargs)
             asdf_file["roman"] = self._instance
             asdf_file.write_to(init, *args, all_array_compression=all_array_compression, **kwargs)

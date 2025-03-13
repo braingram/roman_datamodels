@@ -72,7 +72,6 @@ filterwarnings = [
   "ignore:numpy.ndarray size changed:RuntimeWarning",
   "ignore:The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025:DeprecationWarning",
 ]
-env = ["ROMAN_VALIDATE=true", "ROMAN_STRICT_VALIDATION=true"]
 
 [tool.coverage.report]
 exclude_lines = [
