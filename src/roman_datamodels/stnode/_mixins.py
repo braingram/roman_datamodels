@@ -42,3 +42,8 @@ class WfiModeMixin:
             return self.optical_element
         else:
             return None
+
+
+class RefFileMixin:
+    def _init_defaults(self):
+        return {}

@@ -103,10 +103,13 @@ class DNode(MutableMapping):
     _pattern = None
     _ctx = None
 
+    def _init_defaults(self):
+        return {}
+
     def __init__(self, node=None, parent=None, name=None):
         # Handle if we are passed different data types
         if node is None:
-            self.__dict__["_data"] = {}
+            self.__dict__["_data"] = self._init_defaults()
         elif isinstance(node, dict | AsdfDictNode):
             self.__dict__["_data"] = node
         else:
