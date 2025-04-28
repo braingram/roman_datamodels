@@ -49,6 +49,10 @@ class L2CalStepMixin:
         return {k: "INCOMPLETE" for k in self._schema_attributes.explicit_properties}
 
 
+class L3CalStepMixin(L2CalStepMixin):
+    pass
+
+
 class RefFileMixin:
     def _init_defaults(self):
         defaults = {k: "N/A" for k in self._schema_attributes.explicit_properties}

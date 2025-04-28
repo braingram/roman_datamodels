@@ -285,11 +285,7 @@ def mk_l3_cal_step(**kwargs):
     roman_datamodels.stnode.L3CalStep
     """
     l3calstep = stnode.L3CalStep()
-    l3calstep["flux"] = kwargs.get("flux", "INCOMPLETE")
-    l3calstep["outlier_detection"] = kwargs.get("outlier_detection", "INCOMPLETE")
-    l3calstep["skymatch"] = kwargs.get("skymatch", "INCOMPLETE")
-    l3calstep["resample"] = kwargs.get("resample", "INCOMPLETE")
-
+    l3calstep.update(kwargs)
     return l3calstep
 
 
