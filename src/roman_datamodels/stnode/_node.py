@@ -103,24 +103,27 @@ class DNode(MutableMapping):
     _pattern = None
     _ctx = None
 
-    def _init_defaults(self):
-        return {}
-
     def __init__(self, node=None, parent=None, name=None):
-        # Handle if we are passed different data types
-        if node is None:
-            self.__dict__["_data"] = self._init_defaults()
-        elif isinstance(node, dict | AsdfDictNode):
-            self.__dict__["_data"] = node
-        else:
-            raise ValueError("Initializer only accepts dicts")
-
         # Set the metadata tracked by the node
         self._x_schema = None
         self._schema_uri = None
         self._parent = parent
         self._name = name
         self._x_schema_attributes = None
+        # assign a default empty _data here so that mixins that
+        # have an _init_defaults can use dir
+        self._data = {}
+
+        # Handle if we are passed different data types
+        if node is None:
+            self._data = getattr(self, "_init_defaults", dict)()
+        elif isinstance(node, dict | AsdfDictNode):
+            self._data = node
+        else:
+            raise ValueError("Initializer only accepts dicts")
+
+    def __dir__(self):
+        return self._data.keys() | self._schema_attributes.explicit_properties
 
     @property
     def ctx(self):

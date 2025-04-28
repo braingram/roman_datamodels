@@ -46,4 +46,6 @@ class WfiModeMixin:
 
 class RefFileMixin:
     def _init_defaults(self):
-        return {}
+        defaults = {k: "N/A" for k in self._schema_attributes.explicit_properties}
+        defaults["crds"] = {}
+        return defaults
