@@ -271,21 +271,7 @@ def mk_l2_cal_step(**kwargs):
     roman_datamodels.stnode.L2CalStep
     """
     l2calstep = stnode.L2CalStep()
-    l2calstep["assign_wcs"] = kwargs.get("assign_wcs", "INCOMPLETE")
-    l2calstep["dark"] = kwargs.get("dark", "INCOMPLETE")
-    l2calstep["dq_init"] = kwargs.get("dq_init", "INCOMPLETE")
-    l2calstep["flat_field"] = kwargs.get("flat_field", "INCOMPLETE")
-    l2calstep["flux"] = kwargs.get("flux", "INCOMPLETE")
-    l2calstep["linearity"] = kwargs.get("linearity", "INCOMPLETE")
-    l2calstep["outlier_detection"] = kwargs.get("outlier_detection", "INCOMPLETE")
-    l2calstep["photom"] = kwargs.get("photom", "INCOMPLETE")
-    l2calstep["source_catalog"] = kwargs.get("source_catalog", "INCOMPLETE")
-    l2calstep["ramp_fit"] = kwargs.get("ramp_fit", "INCOMPLETE")
-    l2calstep["refpix"] = kwargs.get("refpix", "INCOMPLETE")
-    l2calstep["saturation"] = kwargs.get("saturation", "INCOMPLETE")
-    l2calstep["skymatch"] = kwargs.get("skymatch", "INCOMPLETE")
-    l2calstep["tweakreg"] = kwargs.get("tweakreg", "INCOMPLETE")
-
+    l2calstep.update(kwargs)
     return l2calstep
 
 
@@ -341,8 +327,7 @@ def mk_ref_file(**kwargs):
     """
     ref_file = stnode.RefFile()
     ref_file["crds"] = {"version": "12.3.1", "context": "roman_0815.pmap"}
-    for k, v in kwargs.items():
-        ref_file[k] = v
+    ref_file.update(kwargs)
     return ref_file
 
 

@@ -44,6 +44,11 @@ class WfiModeMixin:
             return None
 
 
+class L2CalStepMixin:
+    def _init_defaults(self):
+        return {k: "INCOMPLETE" for k in self._schema_attributes.explicit_properties}
+
+
 class RefFileMixin:
     def _init_defaults(self):
         defaults = {k: "N/A" for k in self._schema_attributes.explicit_properties}
