@@ -83,7 +83,7 @@ class SchemaProperties:
         """
 
         # Handle the top-level properties
-        explicit_properties = schema.get("properties", {}).keys()
+        explicit_properties = set(schema.get("properties", {}).keys())
         patterns = schema.get("patternProperties", {})
         schema_properties = cls(explicit_properties, patterns)
 

@@ -271,7 +271,10 @@ def mk_l2_cal_step(**kwargs):
     roman_datamodels.stnode.L2CalStep
     """
     l2calstep = stnode.L2CalStep()
-    l2calstep.update(kwargs)
+    for key in l2calstep:
+        if key not in kwargs:
+            continue
+        l2calstep[key] = kwargs[key]
     return l2calstep
 
 
@@ -285,7 +288,10 @@ def mk_l3_cal_step(**kwargs):
     roman_datamodels.stnode.L3CalStep
     """
     l3calstep = stnode.L3CalStep()
-    l3calstep.update(kwargs)
+    for key in l3calstep:
+        if key not in kwargs:
+            continue
+        l3calstep[key] = kwargs[key]
     return l3calstep
 
 
@@ -323,7 +329,10 @@ def mk_ref_file(**kwargs):
     """
     ref_file = stnode.RefFile()
     ref_file["crds"] = {"version": "12.3.1", "context": "roman_0815.pmap"}
-    ref_file.update(kwargs)
+    for key in ref_file:
+        if key not in kwargs:
+            continue
+        ref_file[key] = kwargs[key]
     return ref_file
 
 
