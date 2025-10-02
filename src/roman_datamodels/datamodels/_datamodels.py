@@ -350,6 +350,11 @@ class MsosStackModel(_RomanDataModel):
     _node_type = stnode.MsosStack  # type: ignore[attr-defined]
 
 
+class ShearImageModel(_RomanDataModel):
+    __slots__ = ()
+    _node_type = stnode.ShearImage  # type: ignore[attr-defined]
+
+
 class RampModel(_RomanDataModel):
     __slots__ = ()
     _node_type = stnode.Ramp  # type: ignore[attr-defined]
