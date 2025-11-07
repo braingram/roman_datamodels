@@ -474,7 +474,7 @@ class FakeDataBuilder(Builder):
     def make_time(self, schema, defaults):
         from astropy.time import Time
 
-        return Time("2020-01-01T00:00:00.0", format="isot", scale="utc")
+        return Time("1900-01-01T00:00:00.0", format="isot", scale="utc")
 
     def make_array(self, schema, defaults):
         import numpy as np
