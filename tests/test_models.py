@@ -645,7 +645,7 @@ def test_default_array_compression(tmp_path):
     model = datamodels.ImageModel.create_fake_data()
     model.save(fn)
     with asdf.open(fn) as af:
-        assert af.get_array_compression(af["roman"]["data"]) == "lz4"
+        assert af.get_array_compression(af["roman"]["data"]) == "zstd"
 
 
 @pytest.mark.parametrize("compression", [None, "bzp2"])
