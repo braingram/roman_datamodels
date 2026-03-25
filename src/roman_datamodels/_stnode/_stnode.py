@@ -12,8 +12,10 @@ from pathlib import Path
 import yaml
 from rad import resources
 
-from ._factories import stnode_factory
+from ._factories import _deferred_node_factory, stnode_factory
 from ._registry import (
+    DEFERRED_NODES_BY_EXTENSION_URI,
+    DEFERRED_NODES_BY_TAG,
     LIST_NODE_CLASSES_BY_PATTERN,
     NODE_CLASSES_BY_TAG,
     OBJECT_NODE_CLASSES_BY_PATTERN,
@@ -55,7 +57,11 @@ def _factory(pattern, latest_manifest, tag_def):
 _generated = {}
 for manifest in _MANIFESTS:
     manifest_uri = manifest["id"]
+    DEFERRED_NODES_BY_EXTENSION_URI[manifest["extension_uri"]] = []
     for tag_def in manifest["tags"]:
+        _deferred_node = _deferred_node_factory(tag_def["tag_uri"])
+        DEFERRED_NODES_BY_TAG[tag_def["tag_uri"]] = _deferred_node
+        DEFERRED_NODES_BY_EXTENSION_URI[manifest["extension_uri"]].append(_deferred_node)
         SCHEMA_URIS_BY_TAG[tag_def["tag_uri"]] = tag_def["schema_uri"]
         base, version = tag_def["tag_uri"].rsplit("-", maxsplit=1)
 

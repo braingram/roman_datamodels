@@ -255,4 +255,11 @@ class TaggedScalarNode(_TaggedNodeMixin):
         return copy.copy(self)
 
 
+class _DeferredNode:
+    __slots__ = "node"
+
+    def __init__(self, node):
+        self.node = node
+
+
 tagged_type: TypeAlias = type[TaggedObjectNode] | type[TaggedListNode] | type[TaggedScalarNode]

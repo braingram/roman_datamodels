@@ -5,12 +5,13 @@ Factories for creating Tagged STNode classes from tag_uris.
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any
 
 from astropy.time import Time
 
 from . import _mixins
-from ._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode, name_from_tag_uri
+from ._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode, _DeferredNode, name_from_tag_uri
 
 if TYPE_CHECKING:
     from ._tagged import tagged_type
@@ -193,3 +194,8 @@ def stnode_factory(
         return scalar_factory(pattern, latest_manifest, tag_def)
     else:
         return node_factory(pattern, latest_manifest, tag_def)
+
+
+def _deferred_node_factory(tag: str):
+    class_name = "Deferred_" + re.sub(r"[\.\_\-\/\:]", "_", tag)
+    return type(class_name, (_DeferredNode,), {"__slots__": ("node",)})

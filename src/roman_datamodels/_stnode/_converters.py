@@ -113,6 +113,17 @@ class TaggedScalarNodeConverter(_RomanConverter):
         return super().from_yaml_tree(node, tag, ctx)
 
 
+# Here's what I'm thinking...
+# Since asdf supports conversion deferral (by returning None from select_tag) we
+# can use this to allow node classes to retain tags on read/write cycles.
+# First, we make a "deferral" extension with:
+# - no tags (will this make a warning? if so use a deferral tag)
+# - no manifest
+# - all node types (similar to old extensions)
+# - a select_tag that returns None
+# - a to_yaml_tree that returns a new type of SomeDeferredClass(instance)
+#
+# Next we define a SomeDeferredClass for every tag (seems unavoidable)
 # Create the ASDF extension for the STNode classes.
 NODE_EXTENSIONS = {
     manifest["id"]: ManifestExtension.from_uri(manifest["id"], converters=NODE_CONVERTERS.values()) for manifest in _MANIFESTS
