@@ -31,10 +31,8 @@ __all__ = ["NODE_CLASSES"]
 #   and this module creates the classes used by the ASDF extension.
 _MANIFEST_DIR = Path(str(importlib.resources.files(resources) / "manifests"))
 # sort manifests by version (newest first)
-_DATAMODEL_MANIFEST_PATHS = sorted([path for path in _MANIFEST_DIR.glob("*datamodels-*.yaml")], reverse=True)
-_DATAMODEL_MANIFESTS = [yaml.safe_load(path.read_bytes()) for path in _DATAMODEL_MANIFEST_PATHS]
-# Notice that the static manifests are first so that we defer to them
-_MANIFESTS = _DATAMODEL_MANIFESTS
+_MANIFEST_PATHS = sorted([path for path in _MANIFEST_DIR.glob("*datamodels-*.yaml")], reverse=True)
+_MANIFESTS = [yaml.safe_load(path.read_bytes()) for path in _MANIFEST_PATHS]
 
 
 def _factory(pattern, latest_manifest, tag_def):
