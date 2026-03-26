@@ -32,18 +32,6 @@ class _RomanConverter(Converter):
 
     lazy = True
 
-    # def __init_subclass__(cls, **kwargs) -> None:
-    #     """
-    #     Automatically create the converter objects.
-    #     """
-    #     super().__init_subclass__(**kwargs)
-
-    #     if not cls.__name__.startswith("_"):
-    #         if cls.__name__ in NODE_CONVERTERS:
-    #             raise ValueError(f"Duplicate converter for {cls.__name__}")
-
-    #         NODE_CONVERTERS[cls.__name__] = cls()
-
     def select_tag(self, obj, tags, ctx):
         return obj.node.tag
 
@@ -117,23 +105,6 @@ class TaggedScalarNodeConverter(_RomanConverter):
         return super().from_yaml_tree(node, tag, ctx)
 
 
-# Here's what I'm thinking...
-# Since asdf supports conversion deferral (by returning None from select_tag) we
-# can use this to allow node classes to retain tags on read/write cycles.
-# First, we make a "deferral" extension with:
-# - no tags (will this make a warning? if so use a deferral tag)
-# - no manifest
-# - all node types (similar to old extensions)
-# - a select_tag that returns None
-# - a to_yaml_tree that returns a new type of SomeDeferredClass(instance)
-#
-# Next we define a SomeDeferredClass for every tag (seems unavoidable)
-# Create the ASDF extension for the STNode classes.
-
-# make the defer extension that claims support for all node type and returns a
-# _Deferred class
-
-
 class _DeferredConverter:
     tags: tuple = tuple()
 
@@ -156,14 +127,7 @@ class _DeferredExtension:
     converters = (_DeferredConverter(),)
 
 
-# register each manifest with specialized converters for the deferred nodes
 def _create_extension(manifest_id: str):
-    # TODO needs to be specific
-    # make converters for this list of deferred things
-    # types will be the deferred types, which I need to assign to a specific
-    # one of the above converters
-    #
-    # tags are the list of tags from the manifest (which I think the ManifestExtension filters)
     # TODO can pre-index these
     class CustomTaggedObjectNodeConverter(TaggedObjectNodeConverter):
         types = [a for (a, b) in DEFERRED_NODES_BY_MANIFEST_URI[manifest_id] if issubclass(b, TaggedObjectNode)]  # noqa: RUF012
@@ -183,7 +147,3 @@ def _create_extension(manifest_id: str):
 
 
 NODE_EXTENSIONS = {"_": _DeferredExtension()} | {manifest["id"]: _create_extension(manifest["id"]) for manifest in _MANIFESTS}
-
-# NODE_EXTENSIONS = {
-#    manifest["id"]: ManifestExtension.from_uri(manifest["id"], converters=NODE_CONVERTERS.values()) for manifest in _MANIFESTS
-# }
