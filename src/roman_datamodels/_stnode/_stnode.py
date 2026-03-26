@@ -55,13 +55,11 @@ _generated = {}
 for manifest in _MANIFESTS:
     manifest_uri = manifest["id"]
     DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri] = {
-        TaggedObjectNode: [],
-        TaggedListNode: [],
-        TaggedScalarNode: [],
+        TaggedObjectNode: _deferred_node_factory(manifest_uri, TaggedObjectNode),
+        TaggedListNode: _deferred_node_factory(manifest_uri, TaggedListNode),
+        TaggedScalarNode: _deferred_node_factory(manifest_uri, TaggedScalarNode),
     }
     for tag_def in manifest["tags"]:
-        _deferred_node = _deferred_node_factory(tag_def["tag_uri"])
-        DEFERRED_NODES_BY_TAG[tag_def["tag_uri"]] = _deferred_node
         SCHEMA_URIS_BY_TAG[tag_def["tag_uri"]] = tag_def["schema_uri"]
         base, version = tag_def["tag_uri"].rsplit("-", maxsplit=1)
 
@@ -74,11 +72,11 @@ for manifest in _MANIFESTS:
             _generated[pattern] = _class
         NODE_CLASSES_BY_TAG[tag_def["tag_uri"]] = _class
         if issubclass(_class, TaggedObjectNode):
-            DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedObjectNode].append(_deferred_node)
+            DEFERRED_NODES_BY_TAG[tag_def["tag_uri"]] = DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedObjectNode]
         elif issubclass(_class, TaggedListNode):
-            DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedListNode].append(_deferred_node)
+            DEFERRED_NODES_BY_TAG[tag_def["tag_uri"]] = DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedListNode]
         else:
-            DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedScalarNode].append(_deferred_node)
+            DEFERRED_NODES_BY_TAG[tag_def["tag_uri"]] = DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedScalarNode]
 
 
 # List of node classes made available by this library.

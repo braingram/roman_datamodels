@@ -124,7 +124,7 @@ def _create_extension(manifest_id: str):
         (TaggedScalarNodeConverter, TaggedScalarNode),
     ]:
         converter = converter_class()
-        converter.types = tuple(DEFERRED_NODES_BY_MANIFEST_URI[manifest_id][node_class])
+        converter.types = (DEFERRED_NODES_BY_MANIFEST_URI[manifest_id][node_class],)
         converters.append(converter)
 
     return ManifestExtension.from_uri(manifest_id, converters=converters)

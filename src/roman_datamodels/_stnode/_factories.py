@@ -5,7 +5,6 @@ Factories for creating Tagged STNode classes from tag_uris.
 
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING, Any
 
 from astropy.time import Time
@@ -196,6 +195,6 @@ def stnode_factory(
         return node_factory(pattern, latest_manifest, tag_def)
 
 
-def _deferred_node_factory(tag: str):
-    class_name = "Deferred_" + re.sub(r"[\.\_\-\/\:]", "_", tag)
+def _deferred_node_factory(manifest_uri: str, base_class: tagged_type):
+    class_name = f"Deferred_{base_class.__name__}_{manifest_uri.rsplit('-')[1]}"
     return type(class_name, (_DeferredNode,), {"__slots__": ("node",)})
