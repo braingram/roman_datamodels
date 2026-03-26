@@ -14,7 +14,7 @@ from rad import resources
 
 from ._factories import _deferred_node_factory, stnode_factory
 from ._registry import (
-    DEFERRED_NODES_BY_EXTENSION_URI,
+    DEFERRED_NODES_BY_MANIFEST_URI,
     DEFERRED_NODES_BY_TAG,
     LIST_NODE_CLASSES_BY_PATTERN,
     NODE_CLASSES_BY_TAG,
@@ -57,19 +57,22 @@ def _factory(pattern, latest_manifest, tag_def):
 _generated = {}
 for manifest in _MANIFESTS:
     manifest_uri = manifest["id"]
-    DEFERRED_NODES_BY_EXTENSION_URI[manifest["extension_uri"]] = []
+    DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri] = []
     for tag_def in manifest["tags"]:
         _deferred_node = _deferred_node_factory(tag_def["tag_uri"])
         DEFERRED_NODES_BY_TAG[tag_def["tag_uri"]] = _deferred_node
-        DEFERRED_NODES_BY_EXTENSION_URI[manifest["extension_uri"]].append(_deferred_node)
         SCHEMA_URIS_BY_TAG[tag_def["tag_uri"]] = tag_def["schema_uri"]
         base, version = tag_def["tag_uri"].rsplit("-", maxsplit=1)
 
         # make pattern from tag
         pattern = f"{base}-*"
-        if pattern not in _generated:
-            _generated[pattern] = _factory(pattern, manifest_uri, tag_def)
-        NODE_CLASSES_BY_TAG[tag_def["tag_uri"]] = _generated[pattern]
+        if pattern in _generated:
+            _class = _generated[pattern]
+        else:
+            _class = _factory(pattern, manifest_uri, tag_def)
+            _generated[pattern] = _class
+        NODE_CLASSES_BY_TAG[tag_def["tag_uri"]] = _class
+        DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri].append((_deferred_node, _class))
 
 
 # List of node classes made available by this library.
