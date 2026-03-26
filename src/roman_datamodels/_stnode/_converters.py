@@ -14,7 +14,7 @@ from ._registry import (
     OBJECT_NODE_CLASSES_BY_PATTERN,
     SCALAR_NODE_CLASSES_BY_PATTERN,
 )
-from ._stnode import _MANIFESTS, NODE_CLASSES
+from ._stnode import _MANIFESTS, NODE_CLASSES  # type: ignore
 from ._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode
 
 __all__ = [
@@ -135,7 +135,7 @@ class TaggedScalarNodeConverter(_RomanConverter):
 
 
 class _DeferredConverter:
-    tags = tuple()
+    tags: tuple = tuple()
 
     @property
     def types(self):
