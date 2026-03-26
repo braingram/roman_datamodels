@@ -19,4 +19,4 @@ NODE_CONVERTERS: dict[str, type[_RomanConverter]] = {}
 NODE_CLASSES_BY_TAG: dict[str, tagged_type] = {}
 SCHEMA_URIS_BY_TAG: dict[str, str] = {}
 DEFERRED_NODES_BY_TAG: dict[str, type[_DeferredNode]] = {}
-DEFERRED_NODES_BY_MANIFEST_URI: dict[str, list[tuple[type[_DeferredNode], tagged_type]]] = {}
+DEFERRED_NODES_BY_MANIFEST_URI: dict[str, dict[tagged_type, list[type[_DeferredNode]]]] = {}

@@ -22,6 +22,7 @@ from ._registry import (
     SCALAR_NODE_CLASSES_BY_PATTERN,
     SCHEMA_URIS_BY_TAG,
 )
+from ._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode
 
 __all__ = ["NODE_CLASSES"]
 
@@ -53,7 +54,11 @@ def _factory(pattern, latest_manifest, tag_def):
 _generated = {}
 for manifest in _MANIFESTS:
     manifest_uri = manifest["id"]
-    DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri] = []
+    DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri] = {
+        TaggedObjectNode: [],
+        TaggedListNode: [],
+        TaggedScalarNode: [],
+    }
     for tag_def in manifest["tags"]:
         _deferred_node = _deferred_node_factory(tag_def["tag_uri"])
         DEFERRED_NODES_BY_TAG[tag_def["tag_uri"]] = _deferred_node
@@ -68,7 +73,12 @@ for manifest in _MANIFESTS:
             _class = _factory(pattern, manifest_uri, tag_def)
             _generated[pattern] = _class
         NODE_CLASSES_BY_TAG[tag_def["tag_uri"]] = _class
-        DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri].append((_deferred_node, _class))
+        if issubclass(_class, TaggedObjectNode):
+            DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedObjectNode].append(_deferred_node)
+        elif issubclass(_class, TaggedListNode):
+            DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedListNode].append(_deferred_node)
+        else:
+            DEFERRED_NODES_BY_MANIFEST_URI[manifest_uri][TaggedScalarNode].append(_deferred_node)
 
 
 # List of node classes made available by this library.

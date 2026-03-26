@@ -2,7 +2,7 @@
 The ASDF Converters to handle the serialization/deseialization of the STNode classes to ASDF.
 """
 
-from asdf.extension import Converter, ManifestExtension
+from asdf.extension import ManifestExtension
 from astropy.time import Time
 
 from ._registry import (
@@ -25,12 +25,13 @@ __all__ = [
 ]
 
 
-class _RomanConverter(Converter):
+class _RomanConverter:
     """
     Base class for the roman_datamodels converters.
     """
 
     lazy = True
+    types: tuple = tuple()
 
     def select_tag(self, obj, tags, ctx):
         return obj.node.tag
@@ -50,10 +51,6 @@ class TaggedObjectNodeConverter(_RomanConverter):
     def tags(self):
         return list(OBJECT_NODE_CLASSES_BY_PATTERN.keys())
 
-    @property
-    def types(self):
-        return list(OBJECT_NODE_CLASSES_BY_PATTERN.values())
-
     def to_yaml_tree(self, obj, tag, ctx):
         return dict(obj.node._data)
 
@@ -67,10 +64,6 @@ class TaggedListNodeConverter(_RomanConverter):
     def tags(self):
         return list(LIST_NODE_CLASSES_BY_PATTERN.keys())
 
-    @property
-    def types(self):
-        return list(LIST_NODE_CLASSES_BY_PATTERN.values())
-
     def to_yaml_tree(self, obj, tag, ctx):
         return list(obj.node)
 
@@ -83,10 +76,6 @@ class TaggedScalarNodeConverter(_RomanConverter):
     @property
     def tags(self):
         return list(SCALAR_NODE_CLASSES_BY_PATTERN.keys())
-
-    @property
-    def types(self):
-        return list(SCALAR_NODE_CLASSES_BY_PATTERN.values())
 
     def to_yaml_tree(self, obj, tag, ctx):
         obj = obj.node
@@ -123,26 +112,21 @@ class _DeferredConverter:
 
 
 class _DeferredExtension:
-    extension_uri = "asdf://something"
+    extension_uri = "asdf://stsci.edu/datamodels/roman/extensions/deferred-1.0.0"
     converters = (_DeferredConverter(),)
 
 
 def _create_extension(manifest_id: str):
-    # TODO can pre-index these
-    class CustomTaggedObjectNodeConverter(TaggedObjectNodeConverter):
-        types = [a for (a, b) in DEFERRED_NODES_BY_MANIFEST_URI[manifest_id] if issubclass(b, TaggedObjectNode)]  # noqa: RUF012
+    converters = []
+    for converter_class, node_class in [
+        (TaggedObjectNodeConverter, TaggedObjectNode),
+        (TaggedListNodeConverter, TaggedListNode),
+        (TaggedScalarNodeConverter, TaggedScalarNode),
+    ]:
+        converter = converter_class()
+        converter.types = tuple(DEFERRED_NODES_BY_MANIFEST_URI[manifest_id][node_class])
+        converters.append(converter)
 
-    class CustomTaggedListNodeConverter(TaggedListNodeConverter):
-        types = [a for (a, b) in DEFERRED_NODES_BY_MANIFEST_URI[manifest_id] if issubclass(b, TaggedListNode)]  # noqa: RUF012
-
-    class CustomTaggedScalarNodeConverter(TaggedScalarNodeConverter):
-        types = [a for (a, b) in DEFERRED_NODES_BY_MANIFEST_URI[manifest_id] if issubclass(b, TaggedScalarNode)]  # noqa: RUF012
-
-    converters = [
-        CustomTaggedObjectNodeConverter(),
-        CustomTaggedListNodeConverter(),
-        CustomTaggedScalarNodeConverter(),
-    ]
     return ManifestExtension.from_uri(manifest_id, converters=converters)
 
 
