@@ -19,7 +19,6 @@ from ._registry import (
     NODE_CLASSES_BY_TAG,
     TAG_MANIFEST_REGISTRY,
 )
-from ._tagged import SerializationNode
 
 __all__ = []
 
@@ -38,7 +37,7 @@ _MANIFESTS = DATAMODEL_MANIFESTS
 # Main dynamic class creation loop
 #   Reads each tag entry from the manifest and creates a class for it
 for manifest in _MANIFESTS:
-    SerializationNode._factory(manifest_uri := manifest["id"])
+    manifest_uri = manifest["id"]
 
     MANIFEST_TAG_REGISTRY[manifest_uri] = []
     for tag_def in manifest["tags"]:

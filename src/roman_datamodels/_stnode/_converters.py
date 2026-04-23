@@ -13,7 +13,6 @@ from ._nodes import NODE_CLASSES
 from ._registry import (
     MANIFEST_TAG_REGISTRY,
     NODE_CLASSES_BY_TAG,
-    SERIALIZATION_BY_MANIFEST,
     TAG_MANIFEST_REGISTRY,
 )
 from ._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode
@@ -40,8 +39,9 @@ class SerializationNodeConverter(_RomanConverter):
     extension can be applied
     """
 
-    def __init__(self, manifest_uri: str):
+    def __init__(self, manifest_uri: str, serialization_node):
         self._manifest_uri = manifest_uri
+        self._serialization_node = serialization_node
 
     def select_tag(self, obj: SerializationNode, tags, ctx) -> str:
         return obj.tag
@@ -52,7 +52,7 @@ class SerializationNodeConverter(_RomanConverter):
 
     @property
     def types(self) -> tuple[type[SerializationNode], ...]:
-        return (SERIALIZATION_BY_MANIFEST[self._manifest_uri],)
+        return (self._serialization_node,)
 
     def to_yaml_tree(self, obj: SerializationNode, tag, ctx):
         return obj.data
@@ -69,6 +69,9 @@ class SerializationNodeConverter(_RomanConverter):
 
 
 class TaggedNodeConverter(_RomanConverter):
+    def __init__(self, serialization_node_by_manifest_uri):
+        self._serialization_node_by_manifest_uri = serialization_node_by_manifest_uri
+
     def select_tag(self, obj, tags, ctx):
         return None
 
@@ -84,7 +87,8 @@ class TaggedNodeConverter(_RomanConverter):
         raise NotImplementedError("Converter deserialization deferred")
 
     def to_yaml_tree(self, obj, tag, ctx):
-        serialization_node = SERIALIZATION_BY_MANIFEST[TAG_MANIFEST_REGISTRY[obj.tag]]
+        # this is a dispatch node -> 1 of many serialization nodes
+        serialization_node = self._serialization_node_by_manifest_uri[TAG_MANIFEST_REGISTRY[obj.tag]]
         if isinstance(obj, TaggedObjectNode):
             data = dict(obj._data)
         elif isinstance(obj, TaggedListNode):

@@ -9,12 +9,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ._tagged import SerializationNode, TaggedListNode, TaggedObjectNode, TaggedScalarNode, tagged_type
+    from ._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode, tagged_type
 
 OBJECT_NODE_CLASSES_BY_PATTERN: dict[str, type[TaggedObjectNode]] = {}
 LIST_NODE_CLASSES_BY_PATTERN: dict[str, type[TaggedListNode]] = {}
 SCALAR_NODE_CLASSES_BY_PATTERN: dict[str, type[TaggedScalarNode]] = {}
 NODE_CLASSES_BY_TAG: dict[str, tagged_type] = {}
-SERIALIZATION_BY_MANIFEST: dict[str, type[SerializationNode]] = {}
 MANIFEST_TAG_REGISTRY: dict[str, list[str]] = {}
 TAG_MANIFEST_REGISTRY: dict[str, str] = {}

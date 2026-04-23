@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 from ._node import DNode, LNode
 from ._registry import (
     NODE_CLASSES_BY_TAG,
-    SERIALIZATION_BY_MANIFEST,
 )
 from ._schema import _NO_VALUE, Builder, FakeDataBuilder, NodeBuilder, _get_schema_from_tag
 
@@ -229,16 +228,6 @@ class SerializationNode(Generic[_T]):
     """
 
     _manifest: ClassVar[str]
-
-    def __init_subclass__(cls, **kwargs) -> None:
-        """
-        Register any subclasses of this class in the SCALAR_NODE_CLASSES_BY_PATTERN registry.
-        """
-        super().__init_subclass__(**kwargs)
-        if cls.__name__ != "SerializationTaggedNode":
-            if cls._manifest in SERIALIZATION_BY_MANIFEST:
-                raise RuntimeError(f"SerializationNode class for '{cls._manifest}' has been defined twice")
-            SERIALIZATION_BY_MANIFEST[cls._manifest] = cls
 
     def __init__(self, data: _T, tag: str):
         self._data = data
