@@ -9,11 +9,9 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING, Generic, TypeVar
 
+from ._manifest import TAG_MANIFEST_REGISTRY
 from ._node import DNode, LNode
-from ._registry import (
-    NODE_CLASSES_BY_TAG,
-)
-from ._schema import _NO_VALUE, Builder, FakeDataBuilder, NodeBuilder, _get_schema_from_tag
+from ._schema import _NO_VALUE, Builder, FakeDataBuilder, NodeBuilder, _get_node_class_for_tag, _get_schema_from_tag
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping
@@ -35,7 +33,8 @@ class _DefaultTagClassProperty:
     def __get__(self, obj, objtype=None):
         # return latest tag for this class TODO pre-compute this
         tags = []
-        for tag, node_class in NODE_CLASSES_BY_TAG.items():
+        for tag in TAG_MANIFEST_REGISTRY:
+            node_class = _get_node_class_for_tag(tag)
             if node_class is objtype:
                 tags.append(tag)
         return sorted(tags)[-1]

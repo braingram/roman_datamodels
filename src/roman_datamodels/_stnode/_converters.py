@@ -14,9 +14,7 @@ from ._manifest import (
     TAG_MANIFEST_REGISTRY,
 )
 from ._nodes import NODE_CLASSES
-from ._registry import (
-    NODE_CLASSES_BY_TAG,
-)
+from ._schema import _get_node_class_for_tag
 from ._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode
 
 if TYPE_CHECKING:
@@ -64,8 +62,10 @@ class SerializationNodeConverter(_RomanConverter):
             converter = ctx.extension_manager.get_converter_for_type(Time)
             node = converter.from_yaml_tree(node, tag, ctx)
 
+        if (node_class := _get_node_class_for_tag(tag)) is None:
+            raise ValueError(f"Failed to find node class for {tag}")
         # TODO: Add method for setting read_tag with some checks
-        obj = NODE_CLASSES_BY_TAG[tag](node)
+        obj = node_class(node)
         obj._read_tag = tag
         return obj
 

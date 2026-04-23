@@ -1,9 +1,9 @@
 import asdf
 import pytest
 
+from roman_datamodels._stnode._manifest import MANIFESTS
 from roman_datamodels._stnode._nodes import NODE_CLASSES
 from roman_datamodels._stnode._schema import _tag_uri_to_schema_uri
-from roman_datamodels._stnode._stnode import MANIFESTS
 from roman_datamodels._stnode._tagged import TaggedObjectNode
 
 

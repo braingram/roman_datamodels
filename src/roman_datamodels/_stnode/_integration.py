@@ -13,9 +13,6 @@ def get_extensions():
     -------
     List[`asdf.extension.Extension`]
     """
-    # Importing from ._stnode itself so that all the dynamically created
-    #   objects are in fact created
-    from . import _stnode  # noqa: F401
     from ._converters import TaggedNodeConverter
     from ._manifest import MANIFEST_TAG_REGISTRY
     from ._tagged import SerializationNode
