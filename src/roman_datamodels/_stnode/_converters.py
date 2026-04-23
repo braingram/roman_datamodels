@@ -9,11 +9,13 @@ from typing import TYPE_CHECKING
 from asdf.extension import Converter
 from astropy.time import Time
 
+from ._manifest import (
+    MANIFEST_TAG_REGISTRY,
+    TAG_MANIFEST_REGISTRY,
+)
 from ._nodes import NODE_CLASSES
 from ._registry import (
-    MANIFEST_TAG_REGISTRY,
     NODE_CLASSES_BY_TAG,
-    TAG_MANIFEST_REGISTRY,
 )
 from ._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode
 

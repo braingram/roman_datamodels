@@ -17,7 +17,7 @@ def get_extensions():
     #   objects are in fact created
     from . import _stnode  # noqa: F401
     from ._converters import TaggedNodeConverter
-    from ._registry import MANIFEST_TAG_REGISTRY
+    from ._manifest import MANIFEST_TAG_REGISTRY
     from ._tagged import SerializationNode
 
     manifest_uris = list(MANIFEST_TAG_REGISTRY.keys())
