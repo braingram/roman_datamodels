@@ -20,7 +20,6 @@ from ._registry import (
     MANIFEST_TAG_REGISTRY,
     NODE_CLASSES_BY_TAG,
     NODE_CONVERTERS,
-    SCHEMA_URIS_BY_TAG,
     TAG_MANIFEST_REGISTRY,
 )
 from ._tagged import SerializationNode
@@ -46,7 +45,7 @@ for manifest in _MANIFESTS:
 
     MANIFEST_TAG_REGISTRY[manifest_uri] = []
     for tag_def in manifest["tags"]:
-        SCHEMA_URIS_BY_TAG[(tag_uri := tag_def["tag_uri"])] = tag_def["schema_uri"]
+        tag_uri = tag_def["tag_uri"]
 
         # populate NODE_CLASSES_BY_TAG FIXME remove this
         for node_class in NODE_CLASSES:

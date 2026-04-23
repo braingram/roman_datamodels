@@ -15,12 +15,30 @@ import asdf
 import asdf.schema
 from semantic_version import Version
 
-from ._registry import NODE_CLASSES_BY_TAG, SCHEMA_URIS_BY_TAG
+from ._registry import NODE_CLASSES_BY_TAG
 
 if TYPE_CHECKING:
     from typing import Any
 
 __all__ = ["get_latest_schema"]
+
+
+URI_PREFIX = "asdf://stsci.edu/datamodels/roman/"
+TAG_URI_PREFIX = f"{URI_PREFIX}tags/"
+SCHEMA_URI_PREFIX = f"{URI_PREFIX}schemas/"
+SCALAR_URI_BASES = (
+    "calibration_software_name",
+    "calibration_software_version",
+    "product_type",
+    "filename",
+    "file_date",
+    "model_type",
+    "origin",
+    "prd_version",
+    "prd_software_version",
+    "sdf_software_version",
+    "telescope",
+)
 
 
 NOSTR = "?"
@@ -56,6 +74,24 @@ def get_latest_schema(uri: str) -> tuple[str, dict[str, Any]]:
 
 
 @functools.cache
+def _tag_uri_to_schema_uri(tag_uri):
+    if "/tvac/" in tag_uri:
+        tag_prefix = f"{TAG_URI_PREFIX}tvac/"
+        schema_prefix = f"{SCHEMA_URI_PREFIX}tvac/"
+    elif "/fps/" in tag_uri:
+        tag_prefix = f"{TAG_URI_PREFIX}fps/"
+        schema_prefix = f"{SCHEMA_URI_PREFIX}fps/"
+    else:
+        tag_prefix = TAG_URI_PREFIX
+        schema_prefix = SCHEMA_URI_PREFIX
+    suffix = tag_uri.removeprefix(tag_prefix)
+    # check if this needs "tagged_scalars
+    if suffix.split("/")[-1].split("-")[0] in SCALAR_URI_BASES:
+        suffix = f"tagged_scalars/{suffix}"
+    return f"{schema_prefix}{suffix}"
+
+
+@functools.cache
 def _get_schema_from_tag(tag):
     """
     Look up and load ASDF's schema corresponding to the tag_uri.
@@ -65,9 +101,7 @@ def _get_schema_from_tag(tag):
     tag : str
         The tag_uri of the schema to load.
     """
-    schema_uri = SCHEMA_URIS_BY_TAG[tag]
-
-    return asdf.schema.load_schema(schema_uri, resolve_references=True)
+    return asdf.schema.load_schema(_tag_uri_to_schema_uri(tag), resolve_references=True)
 
 
 class _MissingKeywordType:

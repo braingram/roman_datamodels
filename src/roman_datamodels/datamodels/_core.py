@@ -25,7 +25,7 @@ from asdf.tags.core.ndarray import NDArrayType
 from astropy.time import Time
 
 from roman_datamodels._stnode import DNode, TaggedObjectNode
-from roman_datamodels._stnode._registry import SCHEMA_URIS_BY_TAG
+from roman_datamodels._stnode._schema import _tag_uri_to_schema_uri
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -230,8 +230,7 @@ class DataModel(abc.ABC):
 
     @property
     def schema_uri(self):
-        # Determine the schema corresponding to this model's tag
-        return SCHEMA_URIS_BY_TAG[self._instance.tag]
+        return _tag_uri_to_schema_uri(self._instance.tag)
 
     def close(self):
         if not (self._iscopy or self._asdf is None):
