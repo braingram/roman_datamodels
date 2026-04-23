@@ -13,7 +13,6 @@ from ._registry import (
     LIST_NODE_CLASSES_BY_PATTERN,
     MANIFEST_TAG_REGISTRY,
     NODE_CLASSES_BY_TAG,
-    NODE_CONVERTERS,
     OBJECT_NODE_CLASSES_BY_PATTERN,
     SCALAR_NODE_CLASSES_BY_PATTERN,
     SERIALIZATION_BY_MANIFEST,
@@ -73,18 +72,6 @@ class SerializationNodeConverter(_RomanConverter):
 
 
 class _TaggedNodeConverter(_RomanConverter):
-    def __init_subclass__(cls, **kwargs) -> None:
-        """
-        Automatically create the converter objects.
-        """
-        super().__init_subclass__(**kwargs)
-
-        if not cls.__name__.startswith("_"):
-            if cls.__name__ in NODE_CONVERTERS:
-                raise ValueError(f"Duplicate converter for {cls.__name__}")
-
-            NODE_CONVERTERS[cls.__name__] = cls()
-
     def select_tag(self, obj, tags, ctx):
         return None
 

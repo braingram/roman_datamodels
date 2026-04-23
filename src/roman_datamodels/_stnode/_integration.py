@@ -16,11 +16,12 @@ def get_extensions():
     # Importing from ._stnode itself so that all the dynamically created
     #   objects are in fact created
     from . import _stnode  # noqa: F401
-    from ._registry import MANIFEST_TAG_REGISTRY, NODE_CONVERTERS
+    from ._converters import TaggedListNodeConverter, TaggedObjectNodeConverter, TaggedScalarNodeConverter
+    from ._registry import MANIFEST_TAG_REGISTRY
+
+    node_converters = (TaggedListNodeConverter(), TaggedObjectNodeConverter(), TaggedScalarNodeConverter())
 
     return [
-        ManifestExtension.from_uri(
-            manifest_uri, converters=(SerializationNodeConverter(manifest_uri), *tuple(NODE_CONVERTERS.values()))
-        )
+        ManifestExtension.from_uri(manifest_uri, converters=(SerializationNodeConverter(manifest_uri), *node_converters))
         for manifest_uri in MANIFEST_TAG_REGISTRY
     ]
