@@ -1,9 +1,10 @@
 import asdf
 import pytest
 
-from roman_datamodels._stnode._registry import OBJECT_NODE_CLASSES_BY_PATTERN
+from roman_datamodels._stnode._nodes import NODE_CLASSES
 from roman_datamodels._stnode._schema import _tag_uri_to_schema_uri
 from roman_datamodels._stnode._stnode import _MANIFESTS as MANIFESTS
+from roman_datamodels._stnode._tagged import TaggedObjectNode
 
 
 @pytest.fixture(scope="session", params=MANIFESTS)
@@ -11,7 +12,7 @@ def manifest(request):
     return request.param
 
 
-@pytest.fixture(scope="session", params=list(OBJECT_NODE_CLASSES_BY_PATTERN.values()))
+@pytest.fixture(scope="session", params=[node_class for node_class in NODE_CLASSES if issubclass(node_class, TaggedObjectNode)])
 def object_node(request):
     return request.param
 

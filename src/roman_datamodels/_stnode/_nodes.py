@@ -5,11 +5,6 @@ from typing import ClassVar
 from asdf.tags.core.ndarray import asdf_datatype_to_numpy_dtype
 from astropy.time import Time
 
-from roman_datamodels._stnode._registry import (
-    LIST_NODE_CLASSES_BY_PATTERN,
-    OBJECT_NODE_CLASSES_BY_PATTERN,
-    SCALAR_NODE_CLASSES_BY_PATTERN,
-)
 from roman_datamodels._stnode._schema import Builder, _get_keyword, _get_properties, _get_schema_from_tag
 from roman_datamodels._stnode._tagged import TaggedListNode, TaggedObjectNode, TaggedScalarNode
 
@@ -967,10 +962,3 @@ class TvacWfiMode(TaggedObjectNode):
 
 # FIXME make this less hacky
 NODE_CLASSES = [obj for obj in locals().values() if isinstance(obj, type) and obj.__module__ == __loader__.name]
-for _node_class in NODE_CLASSES:
-    if issubclass(_node_class, TaggedObjectNode):
-        OBJECT_NODE_CLASSES_BY_PATTERN[_node_class._pattern] = _node_class
-    elif issubclass(_node_class, TaggedListNode):
-        LIST_NODE_CLASSES_BY_PATTERN[_node_class._pattern] = _node_class
-    elif issubclass(_node_class, TaggedScalarNode):
-        SCALAR_NODE_CLASSES_BY_PATTERN[_node_class._pattern] = _node_class
