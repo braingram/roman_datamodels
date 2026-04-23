@@ -12,10 +12,15 @@ from .conftest import MANIFESTS
 
 @pytest.mark.parametrize("tag_def", [tag_def for manifest in MANIFESTS for tag_def in manifest["tags"]])
 def test_tag_has_node_class(tag_def):
-    class_name = stnode._tagged.class_name_from_tag_uri(tag_def["tag_uri"])
-    node_class = getattr(stnode, class_name)
+    tag_uri = tag_def["tag_uri"]
+    node_class = None
+    for candidate_class in stnode._nodes.NODE_CLASSES:
+        if asdf.util.uri_match(candidate_class._pattern, tag_uri):
+            assert node_class is None, f"Found >1 class {node_class, candidate_class} for {tag_uri}"
+            node_class = candidate_class
 
-    assert asdf.util.uri_match(node_class._pattern, tag_def["tag_uri"])
+    assert node_class is not None, f"No class for {tag_uri}"
+
     if node_class._default_tag != tag_def["tag_uri"]:
         default_tag_version = node_class._default_tag.rsplit("-", maxsplit=1)[1]
         tag_def_version = tag_def["tag_uri"].rsplit("-", maxsplit=1)[1]

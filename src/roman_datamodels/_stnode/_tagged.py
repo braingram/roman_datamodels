@@ -27,44 +27,6 @@ else:
 __all__ = ["SerializationNode", "TaggedListNode", "TaggedObjectNode", "TaggedScalarNode"]
 
 
-def name_from_tag_uri(tag_uri: str) -> str:
-    """
-    Compute the name of the schema from the tag_uri.
-
-    Parameters
-    ----------
-    tag_uri : str
-        The tag_uri to find the name from
-    """
-    tag_uri_split = tag_uri.split("/")[-1].split("-")[0]
-    if "/tvac/" in tag_uri and "tvac" not in tag_uri_split:
-        tag_uri_split = "tvac_" + tag_uri.split("/")[-1].split("-")[0]
-    elif "/fps/" in tag_uri and "fps" not in tag_uri_split:
-        tag_uri_split = "fps_" + tag_uri.split("/")[-1].split("-")[0]
-    return tag_uri_split
-
-
-def class_name_from_tag_uri(tag_uri: str) -> str:
-    """
-    Construct the class name for the STNode class from the tag_uri
-
-    Parameters
-    ----------
-    tag_uri : str
-        The tag_uri found in the RAD manifest
-
-    Returns
-    -------
-    string name for the class
-    """
-    tag_name = name_from_tag_uri(tag_uri)
-    class_name = "".join([p.capitalize() for p in tag_name.split("_")])
-    if tag_uri.startswith("asdf://stsci.edu/datamodels/roman/tags/reference_files/"):
-        class_name += "Ref"
-
-    return class_name
-
-
 class _DefaultTagClassProperty:
     """
     This is a stop-gap for romancal usage of _default_tag.
@@ -293,10 +255,10 @@ class SerializationNode(Generic[_T]):
     @classmethod
     def _factory(cls, manifest: str) -> type[SerializationNode]:
         """Create a subclass of this for the given tag"""
-        tag_uri, version = manifest.rsplit("-", maxsplit=1)
+        _, version = manifest.rsplit("-", maxsplit=1)
 
         return type(
-            f"SerializationNode_{class_name_from_tag_uri(tag_uri)}__{version.replace('.', '_')}",
+            f"SerializationNode__{version.replace('.', '_')}",
             (SerializationNode,),
             {
                 "_manifest": manifest,
