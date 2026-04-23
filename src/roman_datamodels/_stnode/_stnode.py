@@ -9,25 +9,23 @@ Dynamic creation of STNode classes from the RAD manifest.
 import importlib.resources
 from pathlib import Path
 
+import asdf
 import yaml
 from asdf.extension import ManifestExtension
 from rad import resources
 
 from ._converters import SerializationNodeConverter
-from ._factories import stnode_factory
+from ._nodes import NODE_CLASSES
 from ._registry import (
-    LIST_NODE_CLASSES_BY_PATTERN,
     MANIFEST_TAG_REGISTRY,
     NODE_CLASSES_BY_TAG,
     NODE_CONVERTERS,
-    OBJECT_NODE_CLASSES_BY_PATTERN,
-    SCALAR_NODE_CLASSES_BY_PATTERN,
     SCHEMA_URIS_BY_TAG,
     TAG_MANIFEST_REGISTRY,
 )
 from ._tagged import SerializationNode
 
-__all__ = ["NODE_CLASSES", "NODE_EXTENSIONS"]
+__all__ = ["NODE_EXTENSIONS"]
 
 
 # Load the manifest directly from the rad resources and not from ASDF.
@@ -41,37 +39,20 @@ DATAMODEL_MANIFESTS = [yaml.safe_load(path.read_bytes()) for path in _DATAMODEL_
 _MANIFESTS = DATAMODEL_MANIFESTS
 
 
-def _add_cls(cls):
-    class_name = cls.__name__
-    globals()[class_name] = cls  # Add to namespace of module
-    __all__.append(class_name)  # add to __all__ so it's imported with `from . import *`
-    return cls
-
-
-def _factory(pattern, latest_manifest, tag_def):
-    """
-    Wrap the __all__ append and class creation in a function to avoid the linter
-        getting upset
-    """
-    return _add_cls(stnode_factory(pattern, latest_manifest, tag_def))
-
-
 # Main dynamic class creation loop
 #   Reads each tag entry from the manifest and creates a class for it
-_generated = {}
 for manifest in _MANIFESTS:
-    _add_cls(SerializationNode._factory(manifest_uri := manifest["id"]))
+    SerializationNode._factory(manifest_uri := manifest["id"])
 
     MANIFEST_TAG_REGISTRY[manifest_uri] = []
     for tag_def in manifest["tags"]:
         SCHEMA_URIS_BY_TAG[(tag_uri := tag_def["tag_uri"])] = tag_def["schema_uri"]
-        base, _ = tag_uri.rsplit("-", maxsplit=1)
 
-        # make pattern from tag
-        pattern = f"{base}-*"
-        if pattern not in _generated:
-            _generated[pattern] = _factory(pattern, manifest_uri, tag_def)
-        NODE_CLASSES_BY_TAG[tag_uri] = _generated[pattern]
+        # populate NODE_CLASSES_BY_TAG FIXME remove this
+        for node_class in NODE_CLASSES:
+            if not asdf.util.uri_match(node_class._pattern, tag_uri):
+                continue
+            NODE_CLASSES_BY_TAG[tag_uri] = node_class
 
         # Make serialization intermediate
         if tag_uri not in TAG_MANIFEST_REGISTRY:
@@ -87,12 +68,3 @@ NODE_EXTENSIONS = {
     )
     for manifest_uri in MANIFEST_TAG_REGISTRY
 }
-
-
-# List of node classes made available by this library.
-#   This is part of the public API.
-NODE_CLASSES = (
-    list(OBJECT_NODE_CLASSES_BY_PATTERN.values())
-    + list(LIST_NODE_CLASSES_BY_PATTERN.values())
-    + list(SCALAR_NODE_CLASSES_BY_PATTERN.values())
-)

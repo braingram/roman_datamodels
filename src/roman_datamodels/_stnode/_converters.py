@@ -138,7 +138,7 @@ class TaggedScalarNodeConverter(_TaggedNodeConverter):
         node = type(obj).__bases__[0](obj)
 
         if "file_date" in obj.tag:
-            converter = ctx.extension_manager.get_converter_for_type(type(node))
+            converter = ctx.extension_manager.get_converter_for_type(Time)
             node = converter.to_yaml_tree(node, tag, ctx)
 
         return super().to_yaml_tree(node, obj.tag, ctx)

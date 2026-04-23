@@ -11,10 +11,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 
 from ._node import DNode, LNode
 from ._registry import (
-    LIST_NODE_CLASSES_BY_PATTERN,
     NODE_CLASSES_BY_TAG,
-    OBJECT_NODE_CLASSES_BY_PATTERN,
-    SCALAR_NODE_CLASSES_BY_PATTERN,
     SERIALIZATION_BY_MANIFEST,
 )
 from ._schema import _NO_VALUE, Builder, FakeDataBuilder, NodeBuilder, _get_schema_from_tag
@@ -216,17 +213,6 @@ class TaggedObjectNode(DNode, _TaggedNodeMixin):
 
     __slots__ = ()
 
-    def __init_subclass__(cls, **kwargs) -> None:
-        """
-        Register any subclasses of this class in the OBJECT_NODE_CLASSES_BY_PATTERN
-        registry.
-        """
-        super().__init_subclass__(**kwargs)
-        if cls.__name__ != "TaggedObjectNode":
-            if cls._pattern in OBJECT_NODE_CLASSES_BY_PATTERN:
-                raise RuntimeError(f"TaggedObjectNode class for tag '{cls._pattern}' has been defined twice")
-            OBJECT_NODE_CLASSES_BY_PATTERN[cls._pattern] = cls
-
 
 class TaggedListNode(LNode, _TaggedNodeMixin):
     """
@@ -237,17 +223,6 @@ class TaggedListNode(LNode, _TaggedNodeMixin):
 
     __slots__ = ()
 
-    def __init_subclass__(cls, **kwargs) -> None:
-        """
-        Register any subclasses of this class in the LIST_NODE_CLASSES_BY_PATTERN
-        registry.
-        """
-        super().__init_subclass__(**kwargs)
-        if cls.__name__ != "TaggedListNode":
-            if cls._pattern in LIST_NODE_CLASSES_BY_PATTERN:
-                raise RuntimeError(f"TaggedListNode class for tag '{cls._pattern}' has been defined twice")
-            LIST_NODE_CLASSES_BY_PATTERN[cls._pattern] = cls
-
 
 class TaggedScalarNode(_TaggedNodeMixin):
     """
@@ -256,16 +231,6 @@ class TaggedScalarNode(_TaggedNodeMixin):
         a scalar base type, or wraps a scalar base type.
         These will all be in the tagged_scalars directory.
     """
-
-    def __init_subclass__(cls, **kwargs) -> None:
-        """
-        Register any subclasses of this class in the SCALAR_NODE_CLASSES_BY_PATTERN registry.
-        """
-        super().__init_subclass__(**kwargs)
-        if cls.__name__ != "TaggedScalarNode":
-            if cls._pattern in SCALAR_NODE_CLASSES_BY_PATTERN:
-                raise RuntimeError(f"TaggedScalarNode class for tag '{cls._pattern}' has been defined twice")
-            SCALAR_NODE_CLASSES_BY_PATTERN[cls._pattern] = cls
 
     def __asdf_traverse__(self):
         return self

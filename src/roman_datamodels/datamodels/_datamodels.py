@@ -9,7 +9,6 @@ This module provides all the specific datamodels used by the Roman pipeline.
 from __future__ import annotations
 
 import copy
-import functools
 import itertools
 import logging
 import pathlib
@@ -49,8 +48,6 @@ log.setLevel(logging.DEBUG)
 
 
 class _SourceCatalogMixin:
-    from roman_datamodels._stnode import ImageSourceCatalogMixin
-
     __slots__ = ()
 
     def create_empty_catalog(self, aperture_radii=None, filters=None):
@@ -74,8 +71,25 @@ class _SourceCatalogMixin:
 
         return self._instance._create_empty_catalog(aperture_radii, filters)
 
-    @functools.wraps(ImageSourceCatalogMixin.get_column_definition)
     def get_column_definition(self, name):
+        """
+        Get the definition of a named column in the catalog table.
+
+        This function parses the "definitions" part of the catalog
+        schema and returns the parsed content.
+
+        Parameters
+        ----------
+        name: str
+            Column name, may contain aperture radisu or filter/band or prefixed
+            with ``forced_``.
+
+        Returns
+        -------
+        dict or None
+            Dictionary containing unit, description, and datatype information
+            or None if the name does not match any definition.
+        """
         return self._instance.get_column_definition(name)
 
 
