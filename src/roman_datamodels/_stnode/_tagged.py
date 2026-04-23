@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 from ._node import DNode, LNode
 from ._registry import (
     LIST_NODE_CLASSES_BY_PATTERN,
+    NODE_CLASSES_BY_TAG,
     OBJECT_NODE_CLASSES_BY_PATTERN,
     SCALAR_NODE_CLASSES_BY_PATTERN,
     SERIALIZATION_BY_MANIFEST,
@@ -67,6 +68,21 @@ def class_name_from_tag_uri(tag_uri: str) -> str:
     return class_name
 
 
+class _DefaultTagClassProperty:
+    """
+    This is a stop-gap for romancal usage of _default_tag.
+    Once new API is added and romancal updated this can be removed.
+    """
+
+    def __get__(self, obj, objtype=None):
+        # return latest tag for this class TODO pre-compute this
+        tags = []
+        for tag, node_class in NODE_CLASSES_BY_TAG.items():
+            if node_class is objtype:
+                tags.append(tag)
+        return sorted(tags)[-1]
+
+
 class _TaggedNodeMixin(NodeMixin):
     """
     Mixin class to provide the common API for all tagged objects.
@@ -83,7 +99,7 @@ class _TaggedNodeMixin(NodeMixin):
 
     _pattern: ClassVar[str]
 
-    _default_tag: ClassVar[str]
+    _default_tag = _DefaultTagClassProperty()
 
     @classmethod
     def _create_minimal(
