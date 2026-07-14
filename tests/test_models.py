@@ -964,3 +964,12 @@ class TestRomanDatamodelCreatorDefaults:
             # Sanity check to show the chosen test data is different from the default
             assert getattr(default_mdl.meta, key) != value
             assert getattr(mdl.meta, key) == value, f"meta.{key} was not set to input default"
+
+
+def test_open_asdf_deprecated():
+    """
+    Test that open_asdf is deprecated.
+    """
+    model = datamodels.ImageModel()
+    with pytest.warns(DeprecationWarning, match="open_asdf is deprecated"):
+        model.open_asdf()

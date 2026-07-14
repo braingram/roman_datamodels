@@ -14,6 +14,7 @@ import abc
 import copy
 import datetime
 import sys
+import warnings
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
 
@@ -188,7 +189,9 @@ class DataModel(abc.ABC):
             if isinstance(init, bytes):
                 init = init.decode(sys.getfilesystemencoding())
 
-            self.asdf = self.open_asdf(init, **kwargs)
+            from ._utils import _open_asdf
+
+            self.asdf = _open_asdf(init, **kwargs)
             if not self.check_type(self.asdf):
                 raise ValueError(f"ASDF file is not of the type expected. Expected {self.__class__.__name__}")
 
@@ -272,6 +275,8 @@ class DataModel(abc.ABC):
         return output_path
 
     def open_asdf(self, init=None, **kwargs):
+        warnings.warn("open_asdf is deprecated. Use roman_datamodels.open instead.", DeprecationWarning, stacklevel=2)
+
         from ._utils import _open_asdf
 
         if isinstance(init, str):
