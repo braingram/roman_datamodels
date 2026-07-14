@@ -194,7 +194,7 @@ class DataModel(abc.ABC):
             if not self.check_type(self.asdf):
                 raise ValueError(f"ASDF file is not of the type expected. Expected {self.__class__.__name__}")
 
-            self._instance = self._asdf.tree["roman"]
+            self._instance = self.asdf.tree["roman"]
         elif isinstance(init, asdf.AsdfFile):
             self.asdf = init
 
