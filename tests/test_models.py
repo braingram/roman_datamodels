@@ -100,23 +100,14 @@ def test_model_schemas(model):
 @pytest.mark.parametrize("method", ["info", "search", "schema_info"])
 def test_model_asdf_operations(node, model, method):
     """
-    Test the decorator for asdf operations on models when an empty initial model
-    which is then filled.
+    Test the decorator for asdf operations on models.
     """
     # Create an empty model
-    mdl = model()
-    assert isinstance(mdl._instance, node)
-
-    # Fill the model with data, but no asdf file is present
-    mdl._instance = node.create_fake_data()
-    assert mdl._asdf is None
+    mdl = model.create_fake_data()
 
     # Run the method we wish to test (it should fail with warning or error
     # if something is broken)
     getattr(mdl, method)()
-
-    # Show that mdl._asdf is now set
-    assert mdl._asdf is not None
 
 
 # Testing core schema

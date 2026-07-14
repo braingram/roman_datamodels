@@ -13,7 +13,6 @@ from __future__ import annotations
 import abc
 import copy
 import datetime
-import functools
 import sys
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
@@ -36,24 +35,6 @@ __all__ = ["MODEL_REGISTRY", "DataModel"]
 MODEL_REGISTRY: dict[str, type[DataModel]] = {}
 
 DEFAULT_ARRAY_INLINE_THRESHOLD = 512
-
-
-def _set_default_asdf(func):
-    """
-    Decorator which ensures that a DataModel has an asdf file available for use
-    if required
-    """
-
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        if self._asdf is None:
-            af = asdf.AsdfFile()
-            af["roman"] = self._instance
-            self._asdf = af
-
-        return func(self, *args, **kwargs)
-
-    return wrapper
 
 
 class DataModel(abc.ABC):
@@ -195,13 +176,12 @@ class DataModel(abc.ABC):
                 )
 
             self._instance = init
-            af = asdf.AsdfFile()
-            af["roman"] = self._instance
-            self._asdf = af
+            self._asdf = asdf.AsdfFile({"roman": self._instance})
             return
 
         if init is None:
             self._instance = self._node_type()
+            self._asdf = asdf.AsdfFile()
 
         elif isinstance(init, str | bytes | PurePath):
             if isinstance(init, PurePath):
@@ -240,7 +220,7 @@ class DataModel(abc.ABC):
         return next(t for t in NODE_EXTENSIONS[self._latest_manifest_uri].tags if t.tag_uri == self._instance._tag).schema_uris[0]
 
     def close(self):
-        if not (self._iscopy or self._asdf is None):
+        if not self._iscopy and self._asdf is not None:
             self._asdf.close()
 
     def __enter__(self):
@@ -432,21 +412,17 @@ class DataModel(abc.ABC):
             if isinstance(val, str | int | float | complex | bool)
         }
 
-    @_set_default_asdf
     def validate(self):
         """
         Re-validate the model instance against the tags
         """
         self._asdf.validate()
 
-    @_set_default_asdf
     def info(self, *args, **kwargs):
         return self._asdf.info(*args, **kwargs)
 
-    @_set_default_asdf
     def search(self, *args, **kwargs):
         return self._asdf.search(*args, **kwargs)
 
-    @_set_default_asdf
     def schema_info(self, *args, **kwargs):
         return self._asdf.schema_info(*args, **kwargs)
