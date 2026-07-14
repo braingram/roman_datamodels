@@ -36,7 +36,7 @@ def test_path_input(tmp_path):
     #     FilenameMismatchWarning should be raised, as we have not synced the filename
     with pytest.warns(datamodels.FilenameMismatchWarning), datamodels.open(file_path) as model:
         assert model.meta.telescope == "ROMAN"
-        af = model._asdf
+        af = model.asdf
 
     # When open creates the file pointer, it should be
     # closed when the model is closed:
@@ -46,7 +46,7 @@ def test_path_input(tmp_path):
     #     FilenameMismatchWarning should be raised, as we have not synced the filename
     with pytest.warns(datamodels.FilenameMismatchWarning), datamodels.open(str(file_path)) as model:
         assert model.meta.telescope == "ROMAN"
-        af = model._asdf
+        af = model.asdf
 
     assert af._closed
 

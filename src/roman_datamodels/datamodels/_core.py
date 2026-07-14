@@ -144,7 +144,7 @@ class DataModel(abc.ABC):
         """
         return cls(cls._node_type.create_fake_data(defaults, shape, tag=tag))
 
-    __slots__ = ("_asdf", "_files_to_close", "_instance", "_iscopy", "_shape")
+    __slots__ = ("_files_to_close", "_instance", "_iscopy", "_shape", "asdf")
 
     @classmethod
     def create_from_model(cls, model: DataModel | DNode) -> Self:
@@ -162,10 +162,10 @@ class DataModel(abc.ABC):
             # Due to __new__ above, this is already initialized.
             return
 
+        self.asdf = None
         self._iscopy = False
         self._shape = None
         self._instance = None
-        self._asdf = None
         self._files_to_close = None
 
         if isinstance(init, TaggedObjectNode):
@@ -176,12 +176,12 @@ class DataModel(abc.ABC):
                 )
 
             self._instance = init
-            self._asdf = asdf.AsdfFile({"roman": self._instance})
+            self.asdf = asdf.AsdfFile({"roman": self._instance})
             return
 
         if init is None:
             self._instance = self._node_type()
-            self._asdf = asdf.AsdfFile()
+            self.asdf = asdf.AsdfFile()
 
         elif isinstance(init, str | bytes | PurePath):
             if isinstance(init, PurePath):
@@ -189,15 +189,15 @@ class DataModel(abc.ABC):
             if isinstance(init, bytes):
                 init = init.decode(sys.getfilesystemencoding())
 
-            self._asdf = self.open_asdf(init, **kwargs)
-            if not self.check_type(self._asdf):
+            self.asdf = self.open_asdf(init, **kwargs)
+            if not self.check_type(self.asdf):
                 raise ValueError(f"ASDF file is not of the type expected. Expected {self.__class__.__name__}")
 
             self._instance = self._asdf.tree["roman"]
         elif isinstance(init, asdf.AsdfFile):
-            self._asdf = init
+            self.asdf = init
 
-            self._instance = self._asdf.tree["roman"]
+            self._instance = self.asdf.tree["roman"]
         else:
             raise OSError("Argument does not appear to be an ASDF file or TaggedObjectNode.")
 
@@ -220,8 +220,8 @@ class DataModel(abc.ABC):
         return next(t for t in NODE_EXTENSIONS[self._latest_manifest_uri].tags if t.tag_uri == self._instance._tag).schema_uris[0]
 
     def close(self):
-        if not self._iscopy and self._asdf is not None:
-            self._asdf.close()
+        if not self._iscopy and self.asdf is not None:
+            self.asdf.close()
 
     def __enter__(self):
         return self
@@ -246,10 +246,11 @@ class DataModel(abc.ABC):
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
         if deepcopy:
-            target._asdf = source._asdf.copy()
+            # TODO does this copy twice?
+            target.asdf = source.asdf.copy()
             target._instance = copy.deepcopy(source._instance, memo=memo)
         else:
-            target._asdf = source._asdf
+            target.asdf = source.asdf
             target._instance = source._instance
 
         target._iscopy = True
@@ -292,7 +293,7 @@ class DataModel(abc.ABC):
                 if cfg.array_inline_threshold is None and all_array_storage is NotSet:
                     cfg.array_inline_threshold = DEFAULT_ARRAY_INLINE_THRESHOLD
 
-                self._asdf.write_to(
+                self.asdf.write_to(
                     init, *args, all_array_compression=all_array_compression, all_array_storage=all_array_storage, **kwargs
                 )
 
@@ -323,7 +324,7 @@ class DataModel(abc.ABC):
         return self._shape
 
     def __setattr__(self, attr, value):
-        if attr.startswith("_") and attr in DataModel.__slots__:
+        if attr in DataModel.__slots__:
             DataModel.__dict__[attr].__set__(self, value)
         else:
             setattr(self._instance, attr, value)
@@ -332,7 +333,7 @@ class DataModel(abc.ABC):
         return getattr(self._instance, attr)
 
     def __delattr__(self, attr):
-        if attr.startswith("_") and attr in DataModel.__slots__:
+        if attr in DataModel.__slots__:
             super().__delattr__(attr)
         else:
             delattr(self._instance, attr)
@@ -414,13 +415,13 @@ class DataModel(abc.ABC):
         """
         Re-validate the model instance against the tags
         """
-        self._asdf.validate()
+        self.asdf.validate()
 
     def info(self, *args, **kwargs):
-        return self._asdf.info(*args, **kwargs)
+        return self.asdf.info(*args, **kwargs)
 
     def search(self, *args, **kwargs):
-        return self._asdf.search(*args, **kwargs)
+        return self.asdf.search(*args, **kwargs)
 
     def schema_info(self, *args, **kwargs):
-        return self._asdf.schema_info(*args, **kwargs)
+        return self.asdf.schema_info(*args, **kwargs)
