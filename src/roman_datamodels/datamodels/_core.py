@@ -202,6 +202,12 @@ class DataModel(abc.ABC):
         else:
             raise OSError("Argument does not appear to be an ASDF file or TaggedObjectNode.")
 
+    @property
+    def _asdf(self):
+        # This is here for 1 romancal test that we can update to use asdf
+        # and then remove this property.
+        return self.asdf
+
     def check_type(self, asdf_file):
         """
         Subclass is expected to check for proper type of node
