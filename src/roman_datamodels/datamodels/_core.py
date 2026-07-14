@@ -144,7 +144,7 @@ class DataModel(abc.ABC):
         """
         return cls(cls._node_type.create_fake_data(defaults, shape, tag=tag))
 
-    __slots__ = ("_files_to_close", "_instance", "_iscopy", "_shape", "asdf")
+    __slots__ = ("_instance", "_iscopy", "_shape", "asdf")
 
     @classmethod
     def create_from_model(cls, model: DataModel | DNode) -> Self:
@@ -166,7 +166,6 @@ class DataModel(abc.ABC):
         self._iscopy = False
         self._shape = None
         self._instance = None
-        self._files_to_close = None
 
         if isinstance(init, TaggedObjectNode):
             if not isinstance(self, MODEL_REGISTRY.get(init.__class__)):
@@ -254,7 +253,6 @@ class DataModel(abc.ABC):
             target._instance = source._instance
 
         target._iscopy = True
-        target._files_to_close = []
         target._shape = source._shape
 
     def save(self, path, dir_path=None, *args, all_array_compression="lz4", all_array_storage=NotSet, **kwargs):
