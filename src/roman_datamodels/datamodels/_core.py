@@ -11,7 +11,6 @@ This provides the abstract base class ``Datamodel`` for all the specific datamod
 from __future__ import annotations
 
 import abc
-import copy
 import datetime
 import sys
 import warnings
@@ -181,7 +180,7 @@ class DataModel(abc.ABC):
 
         if init is None:
             self._instance = self._node_type()
-            self.asdf = asdf.AsdfFile()
+            self.asdf = asdf.AsdfFile({"roman": self._instance})
 
         elif isinstance(init, str | bytes | PurePath):
             if isinstance(init, PurePath):
@@ -248,9 +247,8 @@ class DataModel(abc.ABC):
     @staticmethod
     def clone(target, source, deepcopy=False, memo=None):
         if deepcopy:
-            # TODO does this copy twice?
             target.asdf = source.asdf.copy()
-            target._instance = copy.deepcopy(source._instance, memo=memo)
+            target._instance = target.asdf["roman"]
         else:
             target.asdf = source.asdf
             target._instance = source._instance
