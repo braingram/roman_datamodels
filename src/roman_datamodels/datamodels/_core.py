@@ -287,14 +287,12 @@ class DataModel(abc.ABC):
             temporary_update_filename(self, Path(init).name),
             temporary_update_filedate(self, Time.now()),
         ):
-            asdf_file = self.open_asdf(**kwargs)
-            asdf_file["roman"] = self._instance
             with asdf.config_context() as cfg:
                 # only set array inline threshold if not already set by the user
                 if cfg.array_inline_threshold is None and all_array_storage is NotSet:
                     cfg.array_inline_threshold = DEFAULT_ARRAY_INLINE_THRESHOLD
 
-                asdf_file.write_to(
+                self._asdf.write_to(
                     init, *args, all_array_compression=all_array_compression, all_array_storage=all_array_storage, **kwargs
                 )
 
