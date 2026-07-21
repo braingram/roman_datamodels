@@ -308,6 +308,28 @@ class DataModel(abc.ABC):
             temporary_update_filedate(self, Time.now()),
         ):
             asdf_file = self.open_asdf(**kwargs)
+            if not asdf_file.extensions:
+                prefixes = {
+                    "asdf://astropy.org/astropy/extensions/astropy-": [],
+                    "asdf://asdf-format.org/astronomy/coordinates/extensions/coordinates-": [],
+                    "asdf://asdf-format.org/transform/extensions/transform-": [],
+                    "asdf://astropy.org/astropy/extensions/units-": [],
+                    "asdf://asdf-format.org/astronomy/extensions/astronomy-": [],
+                    "asdf://astropy.org/core/extensions/core-": [],
+                    "asdf://asdf-format.org/astronomy/gwcs/extensions/gwcs-": [],
+                }
+                # reorder extensions to prefer older tags
+                for extension in asdf_file.extension_manager.extensions:
+                    for prefix in prefixes:
+                        if extension.extension_uri.startswith(prefix):
+                            if "units-" in prefix and extension.extension_uri.split("-")[-1] < "1.3.0":
+                                continue
+                            prefixes[prefix].append(extension)
+                extensions = []
+                for exts in prefixes.values():
+                    # reverse order
+                    extensions.append(exts[-1])
+                asdf_file.extensions = extensions
             asdf_file["roman"] = self._instance
             with asdf.config_context() as cfg:
                 # only set array inline threshold if not already set by the user
