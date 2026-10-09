@@ -20,7 +20,7 @@ dependencies = [
   "pyyaml>=6.0",
   "semantic_version>=2.10",
   # "rad >=1.1.0,<1.2.0",
-  "rad@git+https://github.com/spacetelescope/rad.git",
+  "rad@git+https://github.com/braingram/rad.git@skycell_bytes",
 ]
 license-files = ["LICENSE"]
 dynamic = ["version"]
